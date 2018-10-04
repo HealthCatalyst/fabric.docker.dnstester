@@ -1,6 +1,8 @@
-FROM busybox:latest
+FROM centos:centos7
 LABEL maintainer="Health Catalyst"
 LABEL version="1.0"
+
+RUN yum -y install dos2unix bind-utils wget
 
 ADD docker-entrypoint.sh ./docker-entrypoint.sh
 
