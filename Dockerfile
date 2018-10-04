@@ -1,4 +1,4 @@
-FROM healthcatalyst/fabric.docker.centos.tomcat:latest
+FROM busybox:latest
 LABEL maintainer="Health Catalyst"
 LABEL version="1.0"
 
