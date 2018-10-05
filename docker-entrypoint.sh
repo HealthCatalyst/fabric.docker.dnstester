@@ -23,17 +23,29 @@ if [[ -z "$SLEEPINTERVAL" ]]; then
     SLEEPINTERVAL="5"
 fi
 
+
+if [[ -z "$INTERVALBETWEENMESSAGES" ]]; then
+    echo "INTERVALBETWEENMESSAGES is empty"
+    INTERVALBETWEENMESSAGES="5"
+fi
+
 echo "Testing DNS..."
 
 echo "$(date -Iseconds) --- resolv.conf ---"
 cat /etc/resolv.conf
 
-curl -X POST -H 'Content-type: application/json' --data '{"text":"'"$ENVNAME Started monitoring DNS"'"}' "$SLACKURL"
+curl -X POST -H 'Content-type: application/json' --data '{"text":"'"$ENVNAME Started monitoring DNS every $SLEEPINTERVAL seconds"'"}' "$SLACKURL"
 
 declare -i numberOfTimesFailed
 declare -i sleepTimeInSeconds
 
+declare -i timeLastSentSlackMessage
+declare -i intervalBetweenSendingSlackMessages
+
+timeLastSentSlackMessage=$SECONDS
+
 sleepTimeInSeconds=$SLEEPINTERVAL
+intervalBetweenSendingSlackMessages=$INTERVALBETWEENMESSAGES
 
 hasFailed=false
 
@@ -115,22 +127,25 @@ do
     if [ "$total" -gt 0 ]; then
         hasFailed=true
         numberOfTimesFailed=$numberOfTimesFailed+1
-        for (( i=0; i<=$(( $total -1 )); i++ ))
-        do 
-            failedserver="${failedservers[$i]}"
-            failuremessage="${failuremessages[$i]}"
-            echo "$(date -Iseconds)  failed server ($i): $failedserver, numberofTimesFailed=$numberOfTimesFailed"
-            curl -X POST -H 'Content-type: application/json' --data '{"text":"'"$ENVNAME DNS Failed($numberOfTimesFailed): $failedserver"'", "attachments":[{"text":"'"$failuremessage"'"}]}' "$SLACKURL"
-            echo ""
+        timeSinceLastSentSlackMessage=$((SECONDS - timeLastSentSlackMessage))
+        echo "Time since last sent slack message: $timeSinceLastSentSlackMessage"
+        if [[ $timeSinceLastSentSlackMessage -gt $intervalBetweenSendingSlackMessages ]]; then
+            for (( i=0; i<=$(( $total -1 )); i++ ))
+            do 
+                failedserver="${failedservers[$i]}"
+                failuremessage="${failuremessages[$i]}"
+                echo "$(date -Iseconds) Sending slack message. failed server ($i): $failedserver, numberofTimesFailed=$numberOfTimesFailed"
 
-            if [ $numberOfTimesFailed -gt 5 ]; then
-                sleepTimeInSeconds=3600 # every hour
-            fi
-        done
+                curl -X POST -H 'Content-type: application/json' --data '{"text":"'"$ENVNAME DNS Failed($numberOfTimesFailed): $failedserver"'", "attachments":[{"text":"'"$failuremessage"'"}]}' "$SLACKURL"
+                echo ""
+            done
+            timeLastSentSlackMessage=$SECONDS
+        else
+            echo "Cannot send slack message since we sent one $timeSinceLastSentSlackMessage seconds ago and the minimum interval is  $intervalBetweenSendingSlackMessages"
+        fi
     else
         echo "$(date -Iseconds) All is good now"
         numberOfTimesFailed=0
-        sleepTimeInSeconds=$SLEEPINTERVAL
         if [ "$hasFailed" = true ] ; then
             curl -X POST -H 'Content-type: application/json' --data '{"text":"'"$ENVNAME DNS is now working"'"}' "$SLACKURL"
             hasFailed=""
