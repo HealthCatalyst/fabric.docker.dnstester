@@ -42,7 +42,7 @@ declare -i sleepTimeInSeconds
 declare -i timeLastSentSlackMessage
 declare -i intervalBetweenSendingSlackMessages
 
-timeLastSentSlackMessage=$SECONDS
+timeLastSentSlackMessage=0
 
 sleepTimeInSeconds=$SLEEPINTERVAL
 intervalBetweenSendingSlackMessages=$INTERVALBETWEENMESSAGES
