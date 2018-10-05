@@ -28,6 +28,8 @@ echo "Testing DNS..."
 echo "$(date -Iseconds) --- resolv.conf ---"
 cat /etc/resolv.conf
 
+curl -X POST -H 'Content-type: application/json' --data '{"text":"'"$ENVNAME Started monitoring DNS"'"}' "$SLACKURL"
+
 declare -i numberOfTimesFailed
 declare -i sleepTimeInSeconds
 
