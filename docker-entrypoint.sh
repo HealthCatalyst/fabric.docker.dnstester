@@ -1,7 +1,7 @@
 #!/bin/bash
 
-version="2018.04.01.01"
-echo "starting docker-entrypoint.sh version $version"
+version="2018.10.05.01"
+echo "$(date -Iseconds) Starting docker-entrypoint.sh version $version"
 
 if [[ -z "$SERVER1" ]]; then
     echo "ERROR: SERVER1 is empty"
@@ -25,7 +25,7 @@ fi
 
 echo "Testing DNS..."
 
-echo "$(date -Iseconds)  --- resolv.conf ---"
+echo "$(date -Iseconds) --- resolv.conf ---"
 cat /etc/resolv.conf
 
 declare -i numberOfTimesFailed
