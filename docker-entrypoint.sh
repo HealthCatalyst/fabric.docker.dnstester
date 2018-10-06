@@ -129,7 +129,7 @@ do
         numberOfTimesFailed=$numberOfTimesFailed+1
         timeSinceLastSentSlackMessage=$((SECONDS - timeLastSentSlackMessage))
         echo "Time since last sent slack message: $timeSinceLastSentSlackMessage"
-        if [[ $timeSinceLastSentSlackMessage -gt $intervalBetweenSendingSlackMessages ]]; then
+        if [[ $timeLastSentSlackMessage = 0 ]] || [[ $timeSinceLastSentSlackMessage -gt $intervalBetweenSendingSlackMessages ]]; then
             for (( i=0; i<=$(( $total -1 )); i++ ))
             do 
                 failedserver="${failedservers[$i]}"
