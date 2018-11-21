@@ -144,9 +144,9 @@ do
             echo "Cannot send slack message since we sent one $timeSinceLastSentSlackMessage seconds ago and the minimum interval is  $intervalBetweenSendingSlackMessages"
         fi
     else
-        echo "$(date -Iseconds) All is good now"
         numberOfTimesFailed=0
         if [ "$hasFailed" = true ] ; then
+            echo "$(date -Iseconds) All is good now"
             curl -X POST -H 'Content-type: application/json' --data '{"text":"'"$ENVNAME DNS is now working"'"}' "$SLACKURL"
             hasFailed=""
         fi
